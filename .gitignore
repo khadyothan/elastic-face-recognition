@@ -1,3 +1,7 @@
 /node_modules
+/face_images_1000
 *.env
 *.pdf
+*.csv
+*.py
+commands.txt
