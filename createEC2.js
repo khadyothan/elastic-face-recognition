@@ -6,7 +6,7 @@ const ec2Client = new EC2Client(config);
 // Creating EC2 instance
 const createEC2Instance = async () => {
   const params = {
-    ImageId: "ami-0ebfd941bbafe70c6",
+    ImageId: "ami-06b21ccaeff8cd686",
     InstanceType: "t2.micro",
     KeyName: process.env.AWS_KEY_PAIR_NAME,
     MinCount: 1,
@@ -18,7 +18,7 @@ const createEC2Instance = async () => {
         Tags: [
           {
             Key: "Name",
-            Value: "web-instance",
+            Value: "ami-apptier",
           },
         ],
       },
@@ -39,4 +39,5 @@ const createEC2 = async () => {
   await createEC2Instance();
 };
 
-export default createEC2;
+createEC2();
+// export default createEC2;
