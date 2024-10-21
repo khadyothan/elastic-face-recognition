@@ -17,8 +17,7 @@ const ec2 = new EC2Client(config);
 
 const MAX_INSTANCES = 20;
 const MIN_INSTANCES = 1;
-const INSTANCE_NAME = "app-tier-instance-2"; // Use the same name for all instances
-let INSTANCE_COUNT = { count: 0 };
+const INSTANCE_NAME = "app-tier-instance";
 
 const controller = async () => {
   try {
@@ -34,6 +33,7 @@ const controller = async () => {
     const messageCount =
       parseInt(Attributes.ApproximateNumberOfMessages, 10) || 0;
     console.log(messageCount);
+
     if (messageCount < 10) {
       instancesToLaunch = 3;
     } else if (messageCount >= 10 && messageCount < 20) {
@@ -49,32 +49,35 @@ const controller = async () => {
     }
     console.log(instancesToLaunch);
 
-    // let instancesToLaunch = messageCount > 20 ? MAX_INSTANCES : MIN_INSTANCES;
+    for (let i = 1; i <= instancesToLaunch; i++) {
+      // Create a unique name for each instance by appending the instance number
+      const instanceNameWithNumber = `${INSTANCE_NAME}-${i}`;
 
-    const params = {
-      ImageId: "ami-0a9c9f629813187cc",
-      InstanceType: "t2.micro",
-      KeyName: process.env.AWS_KEY_PAIR_NAME,
-      MinCount: instancesToLaunch,
-      MaxCount: instancesToLaunch,
-      SecurityGroupIds: [process.env.AWS_SECURITY_GROUP_ID],
-      TagSpecifications: [
-        {
-          ResourceType: "instance",
-          Tags: [
-            {
-              Key: "Name",
-              Value: INSTANCE_NAME,
-            },
-          ],
-        },
-      ],
-    };
+      const params = {
+        ImageId: "ami-0a9c9f629813187cc",
+        InstanceType: "t2.micro",
+        KeyName: process.env.AWS_KEY_PAIR_NAME,
+        MinCount: 1,
+        MaxCount: 1,
+        SecurityGroupIds: [process.env.AWS_SECURITY_GROUP_ID],
+        TagSpecifications: [
+          {
+            ResourceType: "instance",
+            Tags: [
+              {
+                Key: "Name",
+                Value: instanceNameWithNumber,
+              },
+            ],
+          },
+        ],
+      };
 
-    const { Instances } = await ec2.send(new RunInstancesCommand(params));
-    INSTANCE_COUNT.count += instancesToLaunch;
+      const { Instances } = await ec2.send(new RunInstancesCommand(params));
+      console.log(`Launched instance with name: ${instanceNameWithNumber}`);
+    }
 
-    console.log(`Launched ${instancesToLaunch} instances.`);
+    console.log(`Total instances launched: ${instancesToLaunch}`);
 
     // Check for messages periodically
     const checkQueueInterval = setInterval(async () => {
@@ -94,7 +97,7 @@ const controller = async () => {
           Filters: [
             {
               Name: "tag:Name",
-              Values: [INSTANCE_NAME],
+              Values: [`${INSTANCE_NAME}-*`], // Use a wildcard to find all instances with this prefix
             },
           ],
         };
@@ -107,12 +110,13 @@ const controller = async () => {
         );
 
         if (instanceIds.length > 0) {
-          await ec2.send(
-            new TerminateInstancesCommand({ InstanceIds: instanceIds })
-          );
-          INSTANCE_COUNT.count -= instanceIds.length; // Update count after termination
+          setTimeout(async () => {
+            await ec2.send(
+              new TerminateInstancesCommand({ InstanceIds: instanceIds })
+            );
 
-          console.log(`Terminated instances: ${instanceIds.join(", ")}`);
+            console.log(`Terminated instances: ${instanceIds.join(", ")}`);
+          }, 20000);
         } else {
           console.log("No instances found to terminate.");
         }
@@ -121,7 +125,7 @@ const controller = async () => {
         clearInterval(checkQueueInterval);
         return; // End the controller
       }
-    }, 100000); // Check every 100 seconds (1 minute and 40 seconds)
+    }, 10000); // Check every 10 seconds
   } catch (error) {
     console.error("Error checking SQS and launching instances:", error);
   }

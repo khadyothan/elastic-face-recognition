@@ -11,8 +11,8 @@ const sqs = new SQSClient(config);
 const pollFromRespSQS = async (url, results) => {
   const params = {
     QueueUrl: url,
-    MaxNumberOfMessages: 5,
-    WaitTimeSeconds: 2,
+    MaxNumberOfMessages: 3,
+    WaitTimeSeconds: 10,
   };
 
   try {
