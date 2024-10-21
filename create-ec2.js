@@ -18,7 +18,7 @@ const createEC2Instance = async () => {
         Tags: [
           {
             Key: "Name",
-            Value: "ami-apptier",
+            Value: "web-instance",
           },
         ],
       },
