@@ -23,11 +23,11 @@ const pollFromRespSQS = async (url, results) => {
     if (data.Messages && data.Messages.length > 0) {
       for (const message of data.Messages) {
         const receiptHandle = message.ReceiptHandle;
-        const { reqId, filename, result } = JSON.parse(message.Body);
+        const { reqId, fileName, result } = JSON.parse(message.Body);
         console.log(`Received response message: ${message.Body}`);
 
         if (results[reqId]) {
-          results[reqId](`${filename}:${result.trim()}`);
+          results[reqId](`${fileName}:${result.trim()}`);
         }
 
         await sqs.send(
