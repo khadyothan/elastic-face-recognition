@@ -32,7 +32,7 @@ const INPUT_S3_BUCKET_NAME = process.env.AWS_S3_INPUT_BUCKET_NAME;
 const REQ_SQS_QUEUE_URL = process.env.AWS_SQS_REQ_QUEUE_URL;
 const RESP_SQS_QUEUE_URL = process.env.AWS_SQS_RESP_QUEUE_URL;
 
-const results = {};
+let results = {};
 let activeInstances = [];
 let totalResponses = 0;
 let instancesRunning = false;
@@ -52,7 +52,8 @@ async function terminateInstances() {
     console.log("Terminated instances:", activeInstances);
 
     activeInstances = [];
-    // totalResponses = 0;
+    totalResponses = 0;
+    results = {};
     instancesRunning = false;
   } catch (error) {
     console.error("Error terminating instances:", error);
@@ -82,13 +83,18 @@ app.post("/", upload.single("inputFile"), async (req, res) => {
     if (!instancesRunning) {
       instancesRunning = true;
 
-      const instancesToLaunch = 5;
+      const instancesToLaunch = 10;
       const instanceNames = [
         "app-tier-instance-1",
         "app-tier-instance-2",
         "app-tier-instance-3",
         "app-tier-instance-4",
         "app-tier-instance-5",
+        "app-tier-instance-6",
+        "app-tier-instance-7",
+        "app-tier-instance-8",
+        "app-tier-instance-9",
+        "app-tier-instance-10",
       ];
 
       const params = {
