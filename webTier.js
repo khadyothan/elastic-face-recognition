@@ -52,7 +52,7 @@ async function terminateInstances() {
     console.log("Terminated instances:", activeInstances);
 
     activeInstances = [];
-    totalResponses = 0;
+    // totalResponses = 0;
     instancesRunning = false;
   } catch (error) {
     console.error("Error terminating instances:", error);
@@ -82,11 +82,13 @@ app.post("/", upload.single("inputFile"), async (req, res) => {
     if (!instancesRunning) {
       instancesRunning = true;
 
-      const instancesToLaunch = 3;
+      const instancesToLaunch = 5;
       const instanceNames = [
         "app-tier-instance-1",
         "app-tier-instance-2",
         "app-tier-instance-3",
+        "app-tier-instance-4",
+        "app-tier-instance-5",
       ];
 
       const params = {

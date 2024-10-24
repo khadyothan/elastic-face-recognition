@@ -12,7 +12,7 @@ const pollFromRespSQS = async (url, results) => {
   const params = {
     QueueUrl: url,
     MaxNumberOfMessages: 3,
-    WaitTimeSeconds: 10,
+    WaitTimeSeconds: 0,
   };
 
   try {
